@@ -1,3 +1,22 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
+import { getFirestore, collection, query, where, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+// Firebase config
+const firebaseConfig = {
+    apiKey: "AIzaSyCJ8MmtD9GuQ7Qp1qfbqmK_EtNPpMG8W1g",
+    authDomain: "enrolless.firebaseapp.com",
+    projectId: "enrolless",
+    storageBucket: "enrolless.firebasestorage.app",
+    messagingSenderId: "934026913526",
+    appId: "1:934026913526:web:fd30cd4a136b0e8a346ed7",
+    measurementId: "G-4TBHV5VV6E"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+
 document.addEventListener("DOMContentLoaded", () => {
 
     const loginWrapper = document.getElementById("loginWrapper");
@@ -32,112 +51,109 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let currentDept = "";
     let teachers = [];
-    let editContext = {tIndex:null, sIndex:null};
+    let editContext = { docId: null };
 
+    const creds = { elem: { username: "elemadmin", password: "2025" }, hs: { username: "hsadmin", password: "2025" } };
+
+    // Define teacher lists
     const elementaryTeachers = [
-        { id: "G1", gradeLabel: "Grade 1", name: "Ms. Angela Ramos", students: [] },
-        { id: "G2", gradeLabel: "Grade 2", name: "Mr. Carlo Dizon", students: [] },
-        { id: "G3", gradeLabel: "Grade 3", name: "Ms. Jessa Ramirez", students: [] },
-        { id: "G4", gradeLabel: "Grade 4", name: "Mrs. Liza Delos Reyes", students: [] },
-        { id: "G5", gradeLabel: "Grade 5", name: "Mr. Albert Santos", students: [] },
-        { id: "G6", gradeLabel: "Grade 6", name: "Ms. Hannah Torres", students: [] }
+        { id: "G1", gradeLabel: "Grade 1", name: "Ms. Angela Ramos" },
+        { id: "G2", gradeLabel: "Grade 2", name: "Mr. Carlo Dizon" },
+        { id: "G3", gradeLabel: "Grade 3", name: "Ms. Jessa Ramirez" },
+        { id: "G4", gradeLabel: "Grade 4", name: "Mrs. Liza Delos Reyes" },
+        { id: "G5", gradeLabel: "Grade 5", name: "Mr. Albert Santos" },
+        { id: "G6", gradeLabel: "Grade 6", name: "Ms. Hannah Torres" }
     ];
 
     const highSchoolTeachers = [
-        { id: "G7O", gradeLabel: "Grade 7 - Orion", name: "Ms. Cristy Joy L. Echavez", students: [] },
-        { id: "G7S", gradeLabel: "Grade 7 - Sirius", name: "Mr. Pedro G. Bag-o Jr.", students: [] },
-        { id: "G8A", gradeLabel: "Grade 8 - Antares", name: "Mrs. Eva V. Cuizon", students: [] },
-        { id: "G8Ar", gradeLabel: "Grade 8 - Arcturus", name: "Mrs. Mary Joy V. Bardillas", students: [] },
-        { id: "G9C", gradeLabel: "Grade 9 - Centaurus", name: "Mr. Daniel Gabriel B. Gornez", students: [] },
-        { id: "G9P", gradeLabel: "Grade 9 - Pollux", name: "Mrs. Celerina A. Bedrijo", students: [] },
-        { id: "G10A", gradeLabel: "Grade 10 - Andromeda", name: "Ms. Rowe V. Abalayan", students: [] },
-        { id: "G10P", gradeLabel: "Grade 10 - Polaris", name: "Mrs. April Jane S. Balili", students: [] }
+        { id: "G7O", gradeLabel: "Grade 7 - Orion", name: "Ms. Cristy Joy L. Echavez" },
+        { id: "G7S", gradeLabel: "Grade 7 - Sirius", name: "Mr. Pedro G. Bag-o Jr." },
+        { id: "G8A", gradeLabel: "Grade 8 - Antares", name: "Mrs. Eva V. Cuizon" },
+        { id: "G8Ar", gradeLabel: "Grade 8 - Arcturus", name: "Mrs. Mary Joy V. Bardillas" },
+        { id: "G9C", gradeLabel: "Grade 9 - Centaurus", name: "Mr. Daniel Gabriel B. Gornez" },
+        { id: "G9P", gradeLabel: "Grade 9 - Pollux", name: "Mrs. Celerina A. Bedrijo" },
+        { id: "G10A", gradeLabel: "Grade 10 - Andromeda", name: "Ms. Rowe V. Abalayan" },
+        { id: "G10P", gradeLabel: "Grade 10 - Polaris", name: "Mrs. April Jane S. Balili" }
     ];
 
-    const creds = {elem:{username:"elemadmin", password:"2025"}, hs:{username:"hsadmin", password:"2025"}};
+    // Login handlers
+    elemLoginBtn.addEventListener("click", () => loginHandler("elem"));
+    hsLoginBtn.addEventListener("click", () => loginHandler("hs"));
 
-    // Elementary login
-    elemLoginBtn.addEventListener("click", ()=>{
+    function loginHandler(type) {
         const user = usernameInput.value.trim();
         const pass = passwordInput.value.trim();
-        if(user===creds.elem.username && pass===creds.elem.password){
-            loginWrapper.style.display="none";
-            dashboard.style.display="block";
-            dashboardTitle.innerText="Elementary Dashboard";
-            currentDept="elementary";
-            teachers = JSON.parse(JSON.stringify(elementaryTeachers));
-            dashboardLogo.src = "prof.jpg";
-            loadData();
+        if (user === creds[type].username && pass === creds[type].password) {
+            loginWrapper.style.display = "none";
+            dashboard.style.display = "block";
+            currentDept = type === "elem" ? "elementary" : "highschool";
+            dashboardTitle.innerText = type === "elem" ? "Elementary Dashboard" : "High School Dashboard";
+            dashboardLogo.src = type === "elem" ? "prof.jpg" : "l0g0.png";
+            teachers = type === "elem" ? [...elementaryTeachers] : [...highSchoolTeachers];
             renderTeachers();
-        } else { loginMsg.innerText="Invalid login!"; }
-    });
-
-    // High School login
-    hsLoginBtn.addEventListener("click", ()=>{
-        const user = usernameInput.value.trim();
-        const pass = passwordInput.value.trim();
-        if(user===creds.hs.username && pass===creds.hs.password){
-            loginWrapper.style.display="none";
-            dashboard.style.display="block";
-            dashboardTitle.innerText="High School Dashboard";
-            currentDept="highschool";
-            teachers = JSON.parse(JSON.stringify(highSchoolTeachers));
-            dashboardLogo.src = "l0g0.png";
-            loadData();
-            renderTeachers();
-        } else { loginMsg.innerText="Invalid login!"; }
-    });
-
-    function loadData(){
-        const saved = JSON.parse(localStorage.getItem(currentDept))||[];
-        teachers.forEach(t=>{
-            const found = saved.find(s=>s.id===t.id);
-            t.students = found?found.students:[];
-        });
+        } else {
+            loginMsg.innerText = "Invalid login!";
+        }
     }
 
-    function saveData(){
-        const toSave = teachers.map(t=>({id:t.id,students:t.students}));
-        localStorage.setItem(currentDept,JSON.stringify(toSave));
-    }
+    backBtn.addEventListener("click", () => {
+        dashboard.style.display = "none";
+        loginWrapper.style.display = "block";
+        usernameInput.value = "";
+        passwordInput.value = "";
+        loginMsg.innerText = "";
+        dashboardLogo.src = "";
+    });
 
-    function renderTeachers(){
-        teachersGrid.innerHTML="";
-        teachers.forEach((t,tIndex)=>{
+    // Render teachers grid
+    async function renderTeachers() {
+        teachersGrid.innerHTML = "";
+        for (let i = 0; i < teachers.length; i++) {
+            const teacher = teachers[i];
+            const count = await countStudentsByTeacher(teacher.name);
             const card = document.createElement("div");
-            card.className="teacher-card";
-            card.innerHTML=`<h3>${t.gradeLabel} — ${t.name}</h3><div><strong>${t.students.length}/40</strong></div>`;
+            card.className = "teacher-card";
+            card.innerHTML = `<h3>${teacher.gradeLabel} — ${teacher.name}</h3><div><strong>${count}/40</strong></div>`;
             const btn = document.createElement("button");
-            btn.className="btn small";
-            btn.textContent="View Students";
-            btn.onclick = ()=>showTeacherView(tIndex);
+            btn.className = "btn small";
+            btn.textContent = "View Students";
+            btn.onclick = () => showTeacherView(teacher);
             card.appendChild(btn);
             teachersGrid.appendChild(card);
-        });
-        saveData();
+        }
     }
 
-    function showTeacherView(tIndex){
-        const teacher = teachers[tIndex];
-        dashboard.style.display="none";
-        teacherView.style.display="block";
-        teacherTitle.innerText=`${teacher.gradeLabel} — ${teacher.name} Students`;
-        renderTeacherStudents(teacher,tIndex);
+    async function countStudentsByTeacher(teacherName) {
+        const q = query(collection(db, "registrations"), where("teacher", "==", teacherName));
+        const snapshot = await getDocs(q);
+        return snapshot.size;
     }
 
-    function renderTeacherStudents(teacher,tIndex){
+    async function showTeacherView(teacher) {
+        dashboard.style.display = "none";
+        teacherView.style.display = "block";
+        teacherTitle.innerText = `${teacher.gradeLabel} — ${teacher.name} Students`;
+        await renderTeacherStudents(teacher.name);
+    }
+
+    teacherBackBtn.addEventListener("click", () => {
+        teacherView.style.display = "none";
+        dashboard.style.display = "block";
+        renderTeachers();
+    });
+
+    async function renderTeacherStudents(teacherName) {
         teacherStudentList.innerHTML = "";
-        
-        if(teacher.students.length === 0){
+        const q = query(collection(db, "registrations"), where("teacher", "==", teacherName));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
             teacherStudentList.innerHTML = '<div class="empty-state">No students assigned yet</div>';
             return;
         }
 
-        // Create table
         const table = document.createElement("table");
         table.className = "student-table";
-        
-        // Table header
         table.innerHTML = `
             <thead>
                 <tr>
@@ -152,93 +168,60 @@ document.addEventListener("DOMContentLoaded", () => {
             </thead>
             <tbody id="studentTableBody"></tbody>
         `;
-        
         teacherStudentList.appendChild(table);
-        const tbody = document.getElementById("studentTableBody");
+        const tbody = table.querySelector("#studentTableBody");
 
-        // Add student rows
-        teacher.students.forEach((s, sIdx) => {
+        snapshot.forEach(docSnap => {
+            const data = docSnap.data();
             const tr = document.createElement("tr");
             tr.innerHTML = `
-                <td><strong>${s.name}</strong></td>
-                <td>${s.dob || "N/A"}</td>
-                <td>${s.address || "N/A"}</td>
-                <td>${s.contact || "N/A"}</td>
-                <td><span style="color:#2d7cf0; font-weight:bold;">${s.id || "N/A"}</span></td>
-                <td><em>${s.studentType || "N/A"}</em></td>
+                <td><strong>${data.name}</strong></td>
+                <td>${data.dob || "N/A"}</td>
+                <td>${data.address || "N/A"}</td>
+                <td>${data.contact || "N/A"}</td>
+                <td><span style="color:#2d7cf0; font-weight:bold;">${data.studentID || "N/A"}</span></td>
+                <td><em>${data.studentType || "N/A"}</em></td>
                 <td class="actions"></td>
             `;
-            
-            // Create buttons separately to avoid innerHTML issues
-            const actionsCell = tr.querySelector('.actions');
-            
-            const editBtn = document.createElement('button');
-            editBtn.className = 'btn small';
-            editBtn.textContent = 'Edit';
-            editBtn.setAttribute('data-t', tIndex);
-            editBtn.setAttribute('data-s', sIdx);
-            editBtn.setAttribute('data-action', 'edit');
-            
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'btn small danger';
-            deleteBtn.textContent = 'Delete';
-            deleteBtn.setAttribute('data-t', tIndex);
-            deleteBtn.setAttribute('data-s', sIdx);
-            deleteBtn.setAttribute('data-action', 'delete');
-            
+            const actionsCell = tr.querySelector(".actions");
+
+            // Edit button
+            const editBtn = document.createElement("button");
+            editBtn.className = "btn small";
+            editBtn.textContent = "Edit";
+            editBtn.onclick = () => {
+                editContext.docId = docSnap.id;
+                editStudentID.value = data.studentID;
+                editName.value = data.name;
+                editDob.value = data.dob;
+                editAddress.value = data.address;
+                editGuardian.value = data.guardian;
+                editContact.value = data.contact;
+                editStudentType.value = data.studentType;
+                editForm.style.display = "block";
+            };
+
+            // Delete button
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "btn small danger";
+            deleteBtn.textContent = "Delete";
+            deleteBtn.onclick = async () => {
+                if (confirm("Are you sure you want to delete this student?")) {
+                    await deleteDoc(doc(db, "registrations", docSnap.id));
+                    renderTeacherStudents(teacherName);
+                }
+            };
+
             actionsCell.appendChild(editBtn);
             actionsCell.appendChild(deleteBtn);
-            
             tbody.appendChild(tr);
-        });
-
-        // Add event listeners
-        tbody.querySelectorAll("button").forEach(btn => {
-            btn.onclick = ()=>{
-                const tI = parseInt(btn.dataset.t);
-                const sI = parseInt(btn.dataset.s);
-                const action = btn.dataset.action;
-                if(action==="delete"){
-                    if(confirm("Are you sure you want to delete this student?")){
-                        teachers[tI].students.splice(sI,1);
-                        saveData();
-                        renderTeacherStudents(teachers[tI], tI);
-                    }
-                } else if(action==="edit"){
-                    editContext = {tIndex:tI, sIndex:sI};
-                    const s = teachers[tI].students[sI];
-                    editStudentID.value = s.id || "";
-                    editName.value = s.name;
-                    editDob.value = s.dob || "";
-                    editAddress.value = s.address || "";
-                    editGuardian.value = s.guardian || "";
-                    editContact.value = s.contact || "";
-                    editStudentType.value = s.studentType || "";
-                    editForm.style.display = "block";
-                }
-            }
         });
     }
 
-    teacherBackBtn.addEventListener("click", ()=>{
-        teacherView.style.display="none";
-        dashboard.style.display="block";
-        renderTeachers();
-    });
-
-    backBtn.addEventListener("click", ()=>{
-        dashboard.style.display="none";
-        loginWrapper.style.display="block";
-        usernameInput.value="";
-        passwordInput.value="";
-        loginMsg.innerText="";
-        dashboardLogo.src="";
-    });
-
-    saveEditBtn.addEventListener("click", ()=>{
-        const {tIndex,sIndex} = editContext;
-        teachers[tIndex].students[sIndex] = {
-            id: editStudentID.value,
+    // Save edits
+    saveEditBtn.addEventListener("click", async () => {
+        if (!editContext.docId) return;
+        const updated = {
             name: editName.value,
             dob: editDob.value,
             address: editAddress.value,
@@ -246,29 +229,23 @@ document.addEventListener("DOMContentLoaded", () => {
             contact: editContact.value,
             studentType: editStudentType.value
         };
-        saveData();
-        editForm.style.display="none";
-        renderTeacherStudents(teachers[tIndex], tIndex);
+        await updateDoc(doc(db, "registrations", editContext.docId), updated);
+        editForm.style.display = "none";
+        // Refresh teacher view
+        const teacherName = teacherTitle.innerText.split(" — ")[1];
+        renderTeacherStudents(teacherName);
     });
 
-    cancelEditBtn.addEventListener("click", ()=>{ editForm.style.display="none"; });
+    cancelEditBtn.addEventListener("click", () => {
+        editForm.style.display = "none";
+    });
 
-    searchBar.addEventListener("input", ()=>{
+    // Optional: Search functionality
+    searchBar.addEventListener("input", async () => {
         const filter = searchBar.value.toLowerCase();
-        teachersGrid.querySelectorAll(".teacher-card").forEach(card=>{
-            const cardIndex = Array.from(teachersGrid.children).indexOf(card);
-            const teacher = teachers[cardIndex];
-            
-            // Search in student names
-            const hasMatchingStudent = teacher.students.some(student => 
-                student.name.toLowerCase().includes(filter)
-            );
-            
-            // Also search in teacher/grade label as fallback
-            const teacherText = card.innerText.toLowerCase();
-            
-            // Show card if student name matches OR if search is empty OR if teacher/grade matches
-            card.style.display = (hasMatchingStudent || teacherText.includes(filter) || filter === "") ? "" : "none";
+        teachersGrid.querySelectorAll(".teacher-card").forEach(card => {
+            const text = card.innerText.toLowerCase();
+            card.style.display = text.includes(filter) ? "" : "none";
         });
     });
 
