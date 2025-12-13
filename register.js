@@ -1,8 +1,28 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCJ8MmtD9GuQ7Qp1qfbqmK_EtNPpMG8W1g",
+  authDomain: "enrolless.firebaseapp.com",
+  projectId: "enrolless",
+  storageBucket: "enrolless.firebasestorage.app",
+  messagingSenderId: "934026913526",
+  appId: "1:934026913526:web:fd30cd4a136b0e8a346ed7",
+  measurementId: "G-4TBHV5VV6E"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+
 document.addEventListener("DOMContentLoaded", () => {
     const registerBtn = document.getElementById("registerBtn");
     const message = document.getElementById("message");
-    const studentIDField = document.getElementById("studentID");
 
+    // Teachers mapping remains the same
     const elementaryTeachers = [
         { id: "G1", name: "Ms. Angela Ramos" },
         { id: "G2", name: "Mr. Carlo Dizon" },
@@ -23,36 +43,12 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: "G10P", name: "Mrs. April Jane S. Balili" }
     ];
 
-    // Generate a random student ID in format BH-123456
     function generateStudentID() {
         const randomNum = Math.floor(100000 + Math.random() * 900000);
         return `BH-${randomNum}`;
     }
 
-    // Check if student ID already exists across both departments
-    function isIDUnique(id) {
-        const elemData = JSON.parse(localStorage.getItem("elementary")) || [];
-        const hsData = JSON.parse(localStorage.getItem("highschool")) || [];
-        
-        for (let t of elemData) {
-            if (t.students && t.students.some(s => s.id === id)) return false;
-        }
-        for (let t of hsData) {
-            if (t.students && t.students.some(s => s.id === id)) return false;
-        }
-        return true;
-    }
-
-    // Generate unique student ID
-    function generateUniqueStudentID() {
-        let id;
-        do {
-            id = generateStudentID();
-        } while (!isIDUnique(id));
-        return id;
-    }
-
-    registerBtn.addEventListener("click", () => {
+    registerBtn.addEventListener("click", async () => {
         const name = document.getElementById("name").value.trim();
         const dob = document.getElementById("dob").value;
         const address = document.getElementById("address").value.trim();
@@ -64,18 +60,15 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!name || !dob || !address || !guardian || !contact || !grade || !studentType) {
             message.style.color = "red";
             message.innerText = "Please fill in all fields.";
-            studentIDField.value = "";
             return;
         }
 
-        // Generate unique student ID
-        const studentID = generateUniqueStudentID();
+        const studentID = generateStudentID();
 
-        // Determine department
+        // Assign teacher
         let dept = grade <= 6 ? "elementary" : "highschool";
         let teachers = grade <= 6 ? elementaryTeachers : highSchoolTeachers;
 
-        // Pick teacher
         let teacher;
         if (dept === "elementary") {
             teacher = teachers.find(t => t.id === "G" + grade);
@@ -91,39 +84,36 @@ document.addEventListener("DOMContentLoaded", () => {
             teacher = teachers.find(t => t.id === id);
         }
 
-        // Load saved data from localStorage
-        let saved = JSON.parse(localStorage.getItem(dept)) || [];
-        let tData = saved.find(t => t.id === teacher.id);
-        if (!tData) {
-            tData = { id: teacher.id, students: [] };
-            saved.push(tData);
+        // Save student in Firebase
+        try {
+            await addDoc(collection(db, "registrations"), {
+                studentID,
+                name,
+                dob,
+                address,
+                guardian,
+                contact,
+                grade,
+                studentType,
+                department: dept,
+                teacher: teacher.name,
+                dateRegistered: new Date()
+            });
+            message.style.color = "green";
+            message.innerText = `Successfully Enrolled! Your ID: ${studentID}`;
+
+            // Clear fields
+            document.getElementById("name").value = "";
+            document.getElementById("dob").value = "";
+            document.getElementById("address").value = "";
+            document.getElementById("guardian").value = "";
+            document.getElementById("contact").value = "";
+            document.getElementById("grade").value = "";
+            document.getElementById("studentType").value = "";
+        } catch (error) {
+            console.error("Error saving student: ", error);
+            message.style.color = "red";
+            message.innerText = "Failed to enroll. Try again.";
         }
-
-        // Add student with generated ID
-        tData.students.push({
-            id: studentID,
-            name,
-            dob,
-            address,
-            guardian,
-            contact,
-            studentType
-        });        
-
-        localStorage.setItem(dept, JSON.stringify(saved));
-
-        // Display success message with student ID
-        message.style.color = "green";
-        message.innerText = `Successfully Enrolled!`;
-        studentIDField.value = studentID;
-
-        // Clear other form fields but keep the ID visible
-        document.getElementById("name").value = "";
-        document.getElementById("dob").value = "";
-        document.getElementById("address").value = "";
-        document.getElementById("guardian").value = "";
-        document.getElementById("contact").value = "";
-        document.getElementById("grade").value = "";
-        document.getElementById("studentType").value = "";
     });
 });
