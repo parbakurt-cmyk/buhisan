@@ -1,0 +1,627 @@
+/* Reset & basic style */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: #f0f4f8;
+    color: #333;
+}
+
+nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: #2c3e50;
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    z-index: 1000;
+}
+
+/* Logo on the left */
+nav .nav-logo img {
+    height: 40px;
+    width: auto;
+}
+
+nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* logo left, nav-center takes remaining space */
+    padding: 10px 20px;
+    background: #2c3e50;
+    z-index: 1000;
+}
+
+/* Center nav links */
+.nav-center {
+    flex: 1;                   /* take remaining space */
+    display: flex;
+    justify-content: center;    /* center links horizontally */
+}
+
+/* Nav links */
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+    margin: 0;
+    padding: 0;
+    flex-wrap: wrap;            /* wrap on smaller screens */
+}
+
+.nav-links li a {
+    color: #ecf0f1;
+    text-decoration: none;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    transition: color 0.3s, transform 0.3s;
+}
+
+.nav-links li a i {
+    margin-right: 8px;
+    color: inherit;
+    transition: color 0.3s;
+}
+
+.nav-links li a:hover {
+    color: #f39c12;
+    transform: scale(1.1);
+}
+
+.nav-links li a.active {
+    color: #ecf0f1;
+}
+
+.page-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding-top: 70px; /* offset for navbar */
+}
+
+.container {
+    max-width: 600px;
+    width: 90%;
+    background: rgb(255, 255, 255);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    text-align: center;
+    margin: 0 auto;
+    animation: fadeIn 1s ease-in;
+}
+
+.table-container {
+    max-height: 400px; 
+    overflow-y: auto;
+    margin-top: 20px;
+    border: 1px solid #ffffff;
+    border-radius: 6px;
+}
+
+
+h1, h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+input, select, textarea, button {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #2980b9;
+    box-shadow: 0 0 5px #2980b9;
+}
+
+button {
+    background: #2980b9;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #3498db;
+    transform: scale(1.05);
+}
+
+/* Table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: #fff;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    background: #fff;
+    transition: background 0.3s;
+}
+
+th {
+    background: #2c3e50;
+    color: #fff;
+}
+
+tr:hover {
+    background: #f1c40f;
+}
+
+.about-section p {
+    max-width: 700px;
+    text-align: center;
+    line-height: 1.6;
+    font-size: 1.1em;
+    margin: 20px auto;
+}
+
+.social-links a {
+    color: #2c3e50;
+    transition: color 0.3s;
+}
+
+.social-links a:hover {
+    color: #3498db;
+}
+
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px);}
+    to { opacity: 1; transform: translateY(0);}
+}
+
+/* Center content vertically for register/admin pages */
+.centered {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 70vh;
+}
+
+img#schoolLogo {
+    max-width: 100%;  /* image shrinks if container shrinks */
+    height: auto;
+    display: block;
+    margin: 0 auto 20px;
+}
+
+h2, p {
+    font-size: 1em;     /* use relative units */
+}
+
+/* ========================================
+   MOBILE RESPONSIVE STYLES
+   ======================================== */
+
+/* Tablets and smaller (768px and below) */
+@media screen and (max-width: 768px) {
+    /* Navigation */
+    nav {
+        flex-direction: column;
+        padding: 10px;
+        position: relative;
+    }
+    
+    .nav-logo {
+        margin-bottom: 10px;
+    }
+    
+    .nav-logo img {
+        height: 35px;
+    }
+    
+    .nav-center {
+        width: 100%;
+    }
+    
+    .nav-links {
+        flex-direction: column;
+        gap: 5px;
+        width: 100%;
+    }
+    
+    .nav-links li {
+        width: 100%;
+    }
+    
+    .nav-links li a {
+        display: flex;
+        justify-content: center;
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    
+    /* Page wrapper */
+    .page-wrapper {
+        padding-top: 180px;
+    }
+    
+    /* Containers */
+    .container {
+        max-width: 95%;
+        width: 95%;
+        padding: 20px;
+        margin: 10px auto;
+    }
+    
+    /* Home and About section logos */
+    .home-section img,
+    .about-section img {
+        width: 100px !important;
+        max-width: 100px !important;
+        margin: 10px auto !important;
+        display: block !important;
+        position: static !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        margin-top: 10px !important;
+    }
+    
+    /* Text adjustments */
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    h2 {
+        font-size: 1.3rem;
+    }
+    
+    h3 {
+        font-size: 1.1rem;
+    }
+    
+    p {
+        font-size: 0.9rem;
+        text-align: justify;
+    }
+    
+    .about-section p {
+        font-size: 0.9rem;
+        text-align: justify;
+    }
+    
+    /* Admin Dashboard */
+    #teachersGrid {
+        grid-template-columns: 1fr !important;
+        gap: 15px;
+    }
+    
+    .teacher-card {
+        padding: 12px;
+    }
+    
+    /* Student Table */
+    .student-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .student-table {
+        min-width: 700px;
+        font-size: 0.8rem;
+    }
+    
+    .student-table th,
+    .student-table td {
+        padding: 8px 6px;
+        font-size: 0.8rem;
+    }
+    
+    .student-table .actions {
+        width: 90px;
+        padding: 8px 6px !important;
+    }
+    
+    .student-table .actions button {
+        font-size: 0.75rem;
+        padding: 4px 6px;
+        margin: 2px 0;
+    }
+    
+    /* Forms */
+    input, select, button, textarea {
+        font-size: 14px;
+        padding: 10px;
+    }
+    
+    #loginWrapper {
+        max-width: 95%;
+        width: 95%;
+        padding: 20px;
+    }
+    
+    #loginWrapper button {
+        width: 100%;
+        margin: 5px 0;
+    }
+    
+    #editForm {
+        max-width: 95%;
+        width: 95%;
+        padding: 15px;
+        margin: 10px auto;
+    }
+    
+    /* Search bar */
+    #searchBar {
+        width: 100%;
+        font-size: 14px;
+    }
+    
+    /* Dashboard logo */
+    #dashboardLogo {
+        max-width: 100px !important;
+    }
+    
+    /* Buttons */
+    button.btn {
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    button.btn.small {
+        padding: 6px 8px;
+        font-size: 0.8rem;
+    }
+    
+    /* Social links */
+    .social-links {
+        font-size: 1.3em !important;
+        margin-top: 20px;
+    }
+    
+    /* Contact section */
+    #about {
+        padding: 20px 15px !important;
+        margin: 10px !important;
+        max-width: 95% !important;
+    }
+    
+    /* Quote box and styled divs */
+    div[style*="background: #f0f8ff"] {
+        padding: 15px !important;
+        font-size: 0.9rem !important;
+        margin: 20px 10px !important;
+    }
+    
+    /* Table container */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    table {
+        font-size: 0.85rem;
+    }
+    
+    th, td {
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+}
+
+/* Mobile phones (480px and below) */
+@media screen and (max-width: 480px) {
+    /* Navigation */
+    .nav-logo img {
+        height: 30px;
+    }
+    
+    .nav-links li a {
+        font-size: 0.85rem;
+        padding: 8px;
+    }
+    
+    .nav-links li a i {
+        font-size: 1rem;
+        margin-right: 5px;
+    }
+    
+    /* Page wrapper */
+    .page-wrapper {
+        padding-top: 200px;
+    }
+    
+    /* Text */
+    h1 {
+        font-size: 1.3rem;
+    }
+    
+    h2 {
+        font-size: 1.15rem;
+    }
+    
+    h3 {
+        font-size: 1rem;
+    }
+    
+    p {
+        font-size: 0.85rem;
+    }
+    
+    .about-section p {
+        font-size: 0.85rem;
+    }
+    
+    /* Student table - make scrollable */
+    .student-table {
+        min-width: 650px;
+        font-size: 0.75rem;
+    }
+    
+    .student-table th,
+    .student-table td {
+        padding: 6px 4px;
+        font-size: 0.75rem;
+    }
+    
+    /* Logos even smaller */
+    .home-section img,
+    .about-section img {
+        width: 80px !important;
+        max-width: 80px !important;
+    }
+    
+    #dashboardLogo {
+        max-width: 80px !important;
+    }
+    
+    /* Buttons */
+    button.btn {
+        font-size: 13px;
+        padding: 9px;
+    }
+    
+    button.btn.small {
+        font-size: 0.75rem;
+        padding: 5px 6px;
+    }
+    
+    /* Container */
+    .container {
+        padding: 15px;
+    }
+    
+    /* Social links */
+    .social-links {
+        font-size: 1.2em !important;
+    }
+    
+    /* Forms */
+    input, select, button, textarea {
+        font-size: 13px;
+        padding: 9px;
+    }
+    
+    /* Tables */
+    table {
+        font-size: 0.75rem;
+    }
+    
+    th, td {
+        padding: 6px;
+        font-size: 0.75rem;
+    }
+}
+
+/* Extra small phones (360px and below) */
+@media screen and (max-width: 360px) {
+    .nav-logo img {
+        height: 25px;
+    }
+    
+    .nav-links li a {
+        font-size: 0.8rem;
+        padding: 7px;
+    }
+    
+    h1 {
+        font-size: 1.15rem;
+    }
+    
+    h2 {
+        font-size: 1rem;
+    }
+    
+    p {
+        font-size: 0.8rem;
+    }
+    
+    .container {
+        padding: 12px;
+    }
+    
+    button.btn {
+        font-size: 12px;
+        padding: 8px;
+    }
+}
+
+/* Landscape mode for phones */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    nav {
+        padding: 5px 10px;
+    }
+    
+    .nav-logo img {
+        height: 25px;
+    }
+    
+    .nav-links {
+        flex-direction: row;
+        gap: 10px;
+    }
+    
+    .nav-links li a {
+        padding: 5px 10px;
+        font-size: 0.8rem;
+    }
+    
+    .page-wrapper {
+        padding-top: 60px;
+    }
+    
+    h1, h2 {
+        margin: 10px 0;
+    }
+}
+
+/* Touch device optimization */
+@media (hover: none) and (pointer: coarse) {
+    /* Larger tap targets for touch */
+    button, 
+    .nav-links a,
+    input[type="submit"] {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    .nav-links a {
+        padding: 12px 15px;
+    }
+    
+    button.btn.small {
+        min-height: 36px;
+    }
+}
+
+/* Prevent text size adjustment on orientation change (iOS) */
+html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+}
+
+/* Smooth scrolling for mobile */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Fix for iOS Safari bottom bar */
+@supports (-webkit-touch-callout: none) {
+    .page-wrapper {
+        min-height: -webkit-fill-available;
+    }
+}
